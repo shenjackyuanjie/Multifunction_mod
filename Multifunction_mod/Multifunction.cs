@@ -2504,23 +2504,81 @@ namespace Multfunction_mod
                 foreach (PlanetData pd in sd.planets)
                 {
                     if (pd == null || pd.factory == null || pd.factory.entitySignPool == null) continue;
+                    Debug.Log($"planet: {pd.displayName} | index: {pd.factoryIndex}");
                     foreach (EntityData ed in pd.factory.entityPool)
                     {
+                        // 排除传送带ID无效 无标记传送带
                         if (ed.id <= 0 || ed.beltId == 0 || pd.factory.entitySignPool[ed.id].iconId0 == 0) continue;
                         int signalId = (int)pd.factory.entitySignPool[ed.id].iconId0;
                         int beltid = ed.beltId;
+                        //
                         if (!Beltsignal.ContainsKey(pd.factoryIndex))
                             Beltsignal.Add(pd.factoryIndex, new Dictionary<int, int>());
+                        //
                         if (!Beltsignal[pd.factoryIndex].ContainsKey(beltid))
                             Beltsignal[pd.factoryIndex].Add(beltid, signalId);
+                        //
                         else
                             Beltsignal[pd.factoryIndex][beltid] = signalId;
+                        //
                         if (!Beltsignalnumberoutput.ContainsKey(pd.factoryIndex))
                             Beltsignalnumberoutput.Add(pd.factoryIndex, new Dictionary<int, int>());
+                        // 
                         if (!Beltsignalnumberoutput[pd.factoryIndex].ContainsKey(beltid) && pd.factory.entitySignPool[ed.id].iconId0 == 601 && pd.factory.entitySignPool[ed.id].count0 > 0)
                             Beltsignalnumberoutput[pd.factoryIndex].Add(beltid, (int)pd.factory.entitySignPool[ed.id].count0);
                     }
                 }
+            }
+            PrintBeltInfo();
+        }
+
+        public void PrintBeltInfo()
+        {
+            Logger.LogMessage("Beltsignal:");
+            string cache_output = "   ";
+            int count = 0;
+            foreach (var keyValuePair in Beltsignal)
+            {
+                cache_output = "";
+                count = 0;
+                Logger.LogMessage($"key: {keyValuePair.Key}");
+                foreach (var intKeyValuePair in keyValuePair.Value)
+                {
+                    if (count >= 10)
+                    {
+                        count = 0;
+                        cache_output += "\n";
+                    }
+                    else
+                        count++;
+                    cache_output += intKeyValuePair.Key.ToString();
+                    cache_output += ": ";
+                    cache_output += intKeyValuePair.Value.ToString();
+                    cache_output += "|";
+                }
+                Logger.LogMessage($"{cache_output}");
+            }
+            Logger.LogMessage("Beltsignalnumberoutput:");
+            foreach (var keyValuePair in Beltsignalnumberoutput)
+            {
+                cache_output = "";
+                count = 0;
+                Logger.LogMessage($"key: {keyValuePair.Key}");
+                foreach (var intKeyValuePair in keyValuePair.Value)
+                {
+                    if (count >= 10)
+                    {
+                        count = 0;
+                        cache_output += "\n";
+                    }
+                    else
+                        count++;
+                    cache_output += intKeyValuePair.Key.ToString();
+                    cache_output += ": ";
+                    cache_output += intKeyValuePair.Value.ToString();
+                    cache_output += "|";
+                }
+                Logger.LogMessage($"{cache_output}");
             }
         }
 

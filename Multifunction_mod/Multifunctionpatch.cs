@@ -1257,6 +1257,7 @@ namespace Multfunction_mod
                 if (!BeltSignalFunction.Value) return;
                 int factoryIndex = GameMain.localPlanet.factoryIndex;
                 int beltid = __instance.factory.entityPool[entityId].beltId;
+                Debug.Log($"planet: {GameMain.localPlanet.displayName}({factoryIndex}) belt: {beltid} icon: {signalId}");
                 if (!Beltsignal.ContainsKey(factoryIndex))
                     Beltsignal.Add(factoryIndex, new Dictionary<int, int>());
                 if(!Beltsignal[factoryIndex].ContainsKey(beltid))
@@ -1432,6 +1433,7 @@ namespace Multfunction_mod
         {
             public static void Prefix()
             {
+                // 信号传送带核心逻辑
                 if (!BeltSignalFunction.Value || GameMain.instance == null || !GameMain.instance.running || GameMain.galaxy == null || !FinallyInit) return;
                 foreach (KeyValuePair<int, Dictionary<int, int>> wap1 in Beltsignal)
                 {
@@ -1443,12 +1445,15 @@ namespace Multfunction_mod
                         byte inc=0;
                         if (signalId == 404)
                         {
+                            // signal error
+                            // 清除物品
                             BeltComponent belt = fs.traffic.beltPool[wap2.Key];
                             CargoPath cargoPath = fs.factory.cargoTraffic.GetCargoPath(belt.segPathId);
                             cargoPath.TryPickItem(belt.segIndex + belt.segPivotOffset - 5, 12, out stack, out inc);
                         }
                         else if (1000 <= signalId && signalId < 20000)
                         {
+                            // 各种物品图标
                             BeltComponent belt = fs.traffic.beltPool[wap2.Key];
                             int index = belt.segIndex + belt.segPivotOffset;
                             int beltnumber = (int)fs.factory.entitySignPool[belt.entityId].count0;
@@ -1461,7 +1466,7 @@ namespace Multfunction_mod
                                 int inc1 = ((t / 10 >= 3 ? 4 : t / 10)) *stack1;
                                 fs.factory.cargoTraffic.GetCargoPath(belt.segPathId).TryInsertItem(belt.segIndex + belt.segPivotOffset, signalId, (byte)stack1, (byte)inc1);
                             }
-                            else if (beltnumber== 1 ||(beltnumber>=11&&beltnumber<=14) )
+                            else if (beltnumber== 1 || (beltnumber >= 11 && beltnumber <= 14) )
                             {
                                 bool breakfor = false;
                                 CargoPath cargoPath = fs.factory.cargoTraffic.GetCargoPath(belt.segPathId);
@@ -1570,6 +1575,7 @@ namespace Multfunction_mod
                         }
                         else if (signalId == 405)
                         {
+                            // 齿轮
                             BeltComponent belt = fs.traffic.beltPool[wap2.Key];
                             CargoPath cargoPath = fs.factory.cargoTraffic.GetCargoPath(belt.segPathId);
                             int itemid = 0;
@@ -1586,6 +1592,7 @@ namespace Multfunction_mod
                             switch (fs.factory.entitySignPool[belt.entityId].count0)
                             {
                                 case 1:
+                                    // 采集
                                     if (itemid != 1006 && itemid != 1007 && itemid != 1011 && itemid != 1109 && itemid != 1114 && itemid != 1120 && itemid != 1801 && itemid != 1802) continue;
                                     if (fs.factory.powerSystem == null || fs.factory.powerSystem.genPool == null) continue;
                                     foreach (PowerGeneratorComponent pgc in fs.factory.powerSystem.genPool)
@@ -1617,6 +1624,7 @@ namespace Multfunction_mod
                                     }
                                     break;
                                 case 5:
+                                    // 生产
                                     if (fs.assemblerPool == null) continue;
                                     breakfor = false;
                                     foreach (AssemblerComponent ac in fs.assemblerPool)
@@ -1641,6 +1649,7 @@ namespace Multfunction_mod
                                     }
                                     break;
                                 case 6:
+                                    // 运输
                                     if (fs.factory.transport == null || fs.factory.transport.stationPool == null) continue;
                                     breakfor = false;
                                     foreach (StationComponent sc in fs.factory.transport.stationPool)
@@ -1660,6 +1669,7 @@ namespace Multfunction_mod
                                     }
                                     break;
                                 case 7:
+                                    // 戴森球计划
                                     if (fs.labPool == null) continue;
                                     breakfor = false;
                                     foreach (LabComponent lc in fs.labPool)
